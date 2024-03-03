@@ -1,27 +1,26 @@
 import React , {ReactNode , useEffect, useRef} from 'react'
 
+type IntersectionObserverCallback = (entries: IntersectionObserverEntry[], observer: IntersectionObserver) => void;
+
+
 type Props = {
-    onEnter ?: () => void,
-    onLeave ?: () => void,
+    onEnter ?: IntersectionObserverCallback,
+    onLeave ?: IntersectionObserverCallback,
     options ?: IntersectionObserverInit,
     once ?: boolean 
-
 }
 export default function Observer({
-    onEnter , onLeave , options
+    onEnter = () => {} , onLeave = () => {} , options
 } : Props){
     const ref = useRef<HTMLDivElement | null>(null)
 
     useEffect(() => {
-        if(!onEnter && !onLeave){
-            throw new Error("either onEnter or onLeave must be provided")
-        }
         const observer = new IntersectionObserver((entries , observer) =>{
             let [observedComponent] = entries
             if(observedComponent.isIntersecting){
-                onEnter && onEnter.apply([entries , observer])
+                onEnter(entries , observer)
             } else {
-                onLeave && onLeave.apply([entries , observer])
+                onLeave(entries , observer)
             }
         } , options)
         if(ref.current){
